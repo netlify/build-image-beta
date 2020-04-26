@@ -1,0 +1,3 @@
+name: Swift Support
+pull-request: https://github.com/netlify/build-image/pull/364
+image-tag: upgrade-build-image-to-3.3.8
