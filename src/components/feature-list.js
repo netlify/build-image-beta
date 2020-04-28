@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { graphql, useStaticQuery } from "gatsby"
 
 import Button from "../netlify-ui/src/components/ui/Button"
@@ -10,10 +10,11 @@ import IconSuccess from "../netlify-ui/src/images/inline/icon-success.svg"
  *   pullRequest?: string,
  *   enabled: boolean,
  *   active: boolean,
- *   onActivate: () => void
+ *   onActivate: (cb: () => void) => void
  * }} props
  */
 const Feature = ({ name, pullRequest, enabled, active, onActivate }) => {
+  const [loading, setLoading] = useState(false)
   return (
     <li>
       <div className="inline">
@@ -26,15 +27,24 @@ const Feature = ({ name, pullRequest, enabled, active, onActivate }) => {
         {active ? (
           <span className="fit">
             <strong>Active</strong>
-            <IconSuccess className="icon-success" width="16" height="16" />
+            <img
+              src={IconSuccess}
+              className="icon-success"
+              width="16"
+              height="16"
+            />
           </span>
         ) : (
           <Button
             primary
             className="fit subdued"
-            onClick={onActivate}
-            disabled={!enabled}
+            onClick={() => {
+              setLoading(true)
+              onActivate(() => setLoading(false))
+            }}
+            disabled={!enabled || loading}
           >
+            {loading && <i className="fa fa-spinner fa-spin" />}
             Activate
           </Button>
         )}
@@ -58,17 +68,17 @@ const query = graphql`
 `
 
 /**
- * @param {{ enabled: boolean, onActivate: (imageTag: string) => void }} props
+ * @param {{ enabled: boolean, activeImage: string, onActivate: (imageTag: string, cb: () => void) => void }} props
  */
-export const FeatureList = ({ onActivate, enabled }) => {
+export const FeatureList = ({ onActivate, enabled, activeImage }) => {
   const { allBuildImagesYaml } = useStaticQuery(query)
   return (
     <ul className="table-body card__premium">
       <Feature
         name={"Default Image (Ubuntu Xenial 16.04)"}
-        active={false}
+        active={activeImage === "xenial"}
         enabled={enabled}
-        onActivate={() => onActivate("xenial")}
+        onActivate={cb => onActivate("xenial", cb)}
         key={"xenial"}
       />
       {allBuildImagesYaml.edges.map(
@@ -77,9 +87,9 @@ export const FeatureList = ({ onActivate, enabled }) => {
             key={image_tag}
             name={name}
             pullRequest={pull_request}
-            active={false}
+            active={activeImage === image_tag}
             enabled={enabled}
-            onActivate={() => onActivate(image_tag)}
+            onActivate={cb => onActivate(image_tag, cb)}
           />
         )
       )}

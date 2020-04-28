@@ -1,6 +1,6 @@
 const webpack = require("webpack")
 
-exports.onCreateWebpackConfig = ({ plugins, actions }) => {
+exports.onCreateWebpackConfig = ({ actions }) => {
   actions.setWebpackConfig({
     resolve: {
       alias: {

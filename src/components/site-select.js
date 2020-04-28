@@ -15,20 +15,22 @@ async function loadSites({ query, apiToken }) {
       name: query,
       filter: "all",
     })
-    return sites
+    return sites.reduce((result, site) => {
+      result[site.id] = site
+      return result
+    }, {})
   } catch (e) {
     console.error(e)
-    return []
+    return {}
   }
 }
 
 /**
- * @param {{ apiToken?: string }} props
+ * @param {{ apiToken?: string, value: Object, setValue: (val: Object) => void }} props
  */
-export const SiteSelect = ({ apiToken }) => {
-  const [value, setValue] = useState(null)
+export const SiteSelect = ({ apiToken, value, setValue }) => {
   const [query, setQuery] = useState("")
-  const [options, setOptions] = useState([])
+  const [options, setOptions] = useState({})
 
   useEffect(() => {
     if (!apiToken) {
@@ -39,14 +41,22 @@ export const SiteSelect = ({ apiToken }) => {
     })
   }, [query, apiToken])
 
-  useEffect(() => console.log(value), [value])
+  useEffect(() => {
+    if (!value || options[value.id] === value) {
+      return
+    }
+    setOptions({
+      ...options,
+      [value.id]: value,
+    })
+  }, [value])
 
   return (
     <Select
       backspaceRemoves
       labelKey="name"
       noResultsText={"No results found"}
-      options={options}
+      options={Object.values(options)}
       onChange={setValue}
       onInputChange={setQuery}
       placeholder={"Search for the site across teams"}

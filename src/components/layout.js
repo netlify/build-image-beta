@@ -11,6 +11,7 @@ import { useStaticQuery, graphql } from "gatsby"
 
 import Header from "./header"
 import "./styles.css"
+import "../netlify-ui/src/stylesheets/vendor/icomoon/style.css"
 
 const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`

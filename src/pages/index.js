@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useCallback } from "react"
 import querystring from "querystring"
 
 import Layout from "../components/layout"
 import { SiteSelect } from "../components/site-select"
 import { FeatureList } from "../components/feature-list"
+import { Login } from "../components/login"
+import * as api from "../utils/client"
 
 import "../netlify-ui/src/stylesheets/2.0/imports/utilities.css"
-import { Login } from "../components/login"
 
 const { history, location } = window
 
@@ -71,14 +72,35 @@ function handleAuth(e) {
   location.href = `/.netlify/functions/auth-start?url=${redirectTo}&csrf=${state}`
 }
 
+async function setImageOnSite(build_image, site, token) {
+  api.defaults.headers = {
+    Authorization: `Bearer ${token}`,
+  }
+  return api.updateSite(site.id, { build_image })
+}
+
 const IndexPage = () => {
   const token = useAuthState()
+  const [site, setSite] = useState(null)
+  const activateImage = useCallback(
+    (image, cb) => {
+      setImageOnSite(image, site, token)
+        .then(site => setSite(site))
+        .catch(e => alert(`Unable to update site: ${e}`))
+        .then(cb)
+    },
+    [site, setSite, token]
+  )
 
   return (
     <Layout>
       <Login onLogin={handleAuth} isAuthed={!!token} />
-      <SiteSelect apiToken={token} />
-      <FeatureList enabled={!!token} />
+      <SiteSelect apiToken={token} value={site} setValue={setSite} />
+      <FeatureList
+        enabled={!!token && !!site}
+        activeImage={site && site.build_image}
+        onActivate={activateImage}
+      />
     </Layout>
   )
 }
