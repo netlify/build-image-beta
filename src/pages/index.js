@@ -9,7 +9,7 @@ import * as api from "../utils/client"
 
 import "../netlify-ui/src/stylesheets/2.0/imports/utilities.css"
 
-const { history, location } = window
+const { history, location } = typeof window !== "undefined" ? window : {}
 
 function csrfToken() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -30,7 +30,10 @@ const LOCAL_STORAGE_TOKEN_KEY = "nf-auth-token"
 const useAuthState = () => {
   const [token, setToken] = useState("")
   useEffect(() => {
-    const response = parseHash(window.location.hash)
+    if (!location) {
+      return
+    }
+    const response = parseHash(location.hash)
     /* Clear hash */
     document.location.hash = ""
     history.pushState(
