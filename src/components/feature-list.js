@@ -9,11 +9,11 @@ import IconSuccess from "../netlify-ui/src/images/inline/icon-success.svg"
  *   name: string,
  *   pullRequest?: string,
  *   enabled: boolean,
- *   hasAuth: boolean,
+ *   active: boolean,
  *   onActivate: () => void
  * }} props
  */
-const Feature = ({ name, pullRequest, enabled, hasAuth, onActivate }) => {
+const Feature = ({ name, pullRequest, enabled, active, onActivate }) => {
   return (
     <li>
       <div className="inline">
@@ -23,7 +23,7 @@ const Feature = ({ name, pullRequest, enabled, hasAuth, onActivate }) => {
             <a href={pullRequest}>{pullRequest}</a>
           </div>
         </div>
-        {enabled ? (
+        {active ? (
           <span className="fit">
             <strong>Active</strong>
             <IconSuccess className="icon-success" width="16" height="16" />
@@ -33,7 +33,7 @@ const Feature = ({ name, pullRequest, enabled, hasAuth, onActivate }) => {
             primary
             className="fit subdued"
             onClick={onActivate}
-            disabled={!hasAuth}
+            disabled={!enabled}
           >
             Activate
           </Button>
@@ -58,25 +58,27 @@ const query = graphql`
 `
 
 /**
- * @param {{ apiToken: string, onActivate: (imageTag: string) => void }} props
+ * @param {{ enabled: boolean, onActivate: (imageTag: string) => void }} props
  */
-export const FeatureList = ({ onActivate, apiToken }) => {
+export const FeatureList = ({ onActivate, enabled }) => {
   const { allBuildImagesYaml } = useStaticQuery(query)
   return (
     <ul className="table-body card__premium">
       <Feature
-        name={"Default Image (Xenial)"}
-        enabled={false}
-        hasAuth={!!apiToken}
+        name={"Default Image (Ubuntu Xenial 16.04)"}
+        active={false}
+        enabled={enabled}
         onActivate={() => onActivate("xenial")}
+        key={"xenial"}
       />
       {allBuildImagesYaml.edges.map(
         ({ node: { name, pull_request, image_tag } }) => (
           <Feature
+            key={image_tag}
             name={name}
             pullRequest={pull_request}
-            enabled={false}
-            hasAuth={!!apiToken}
+            active={false}
+            enabled={enabled}
             onActivate={() => onActivate(image_tag)}
           />
         )
