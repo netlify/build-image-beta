@@ -1,0 +1,4 @@
+name: Homebrew Dependency Install
+pull-request: https://github.com/netlify/build-image/pull/411
+image-tag: beta-homebrew
+released: false
