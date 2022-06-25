@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "netlify": "^2.3.1",
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^2.6.7",
     "simple-oauth2": "^2.2.1"
   }
 }
